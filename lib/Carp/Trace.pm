@@ -14,7 +14,7 @@ BEGIN {
 $OFFSET     = 0;
 $DEPTH      = 0;
 $ARGUMENTS  = 0;
-$VERSION    = '0.10';
+$VERSION    = '0.11';
 
 sub trace {
     my $level   = shift || $DEPTH       || 0;

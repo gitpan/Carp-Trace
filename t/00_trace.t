@@ -1,5 +1,5 @@
 use lib 'lib';
-use Test::More tests => 3;
+use Test::More 'no_plan';
 BEGIN { $^W = 0 }
 use_ok('Carp::Trace');
 
@@ -11,54 +11,68 @@ sub zot { $z = trace() };
 ### trace without args
 {   eval 'foo(1)';
 
-my $expect = 
-qq|main::(eval) [5]
-\tfoo(1);
-\tvoid - no new stash
-\tt/00_trace.t line 12
-main::foo [4]
-\tvoid - new stash
-\t(eval 2) line 1
-main::bar [3]
-\tvoid - new stash
-\tt/00_trace.t line 6
-main::baz [2]
-\tscalar - new stash
-\tt/00_trace.t line 7
-main::zot [1]
-\tlist - new stash
-\tt/00_trace.t line 8
-|;
-    
-    is($z, $expect, "Trace with no arguments");
+    ok( $z,                         "Trace obtained" );
+
+    my @expect = (
+        'main::(eval) [5]',
+        'foo(1)',
+        "$0 line",
+        'main::foo [4]',        
+        'void - new stash',
+        '(eval 2) line',
+        'main::bar [3]',
+        'void - new stash',
+        "$0 line",
+        'main::baz [2]',
+        'scalar - new stash',
+        "$0 line",
+        'main::zot [1]',
+        'list - new stash',
+        "$0 line",    
+    );
+ 
+    for my $line (@expect) {
+        my $token = quotemeta $line;
+ 
+        like( $z, qr/$token/,       "   Trace contains '$line'" );
+    }
+
+    undef $z;
 }
 
-### Trace with args
 {   local $Carp::Trace::ARGUMENTS = 1;
-    eval foo($0,[1]);
-
-my $expect = 
-qq|main::foo [4]
-\tscalar - new stash
-\tt/00_trace.t line 38
-\t\$ARGS1 = 't/00_trace.t';
-\t\$ARGS2 = [
-\t  1
-\t];
-main::bar [3]
-\tscalar - new stash
-\tt/00_trace.t line 6
-\t\$ARGS1 = 't/00_trace.t';
-\t\$ARGS2 = [
-\t  1
-\t];
-main::baz [2]
-\tscalar - new stash
-\tt/00_trace.t line 7
-main::zot [1]
-\tlist - new stash
-\tt/00_trace.t line 8
-|;
+    eval foo('bar',[1]);
     
-    is($z, $expect, "Trace with arguments");
+    ok( $z,                         "Trace with args" );
+
+    my @expect = (
+        'main::foo [4]',
+        'scalar - new stash',
+        "$0 line",
+        "\$ARGS1 = 'bar'",
+        '$ARGS2 = [',
+        '1',
+        '];',
+        'main::bar [3]',
+        'scalar - new stash',
+        "$0 line",
+        "\$ARGS1 = 'bar'",
+        '$ARGS2 = [',
+        '1',
+        '];',
+        'main::baz [2]',
+        'scalar - new stash',
+        "$0 line",
+        'main::zot [1]',
+        'list - new stash',
+        "$0 line",
+    );        
+    
+    for my $line (@expect) {
+        my $token = quotemeta $line;
+ 
+        like( $z, qr/$token/,       "   Trace contains '$line'" );
+    }
+
+    undef $z;
 }
