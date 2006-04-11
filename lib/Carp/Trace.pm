@@ -6,7 +6,7 @@ use Devel::Caller::Perl qw[called_args];
 BEGIN {
     use     vars qw[@ISA @EXPORT $VERSION $DEPTH $OFFSET $ARGUMENTS];
     use     Exporter;
-    
+
     @ISA    = 'Exporter';
     @EXPORT = 'trace';
 }
@@ -14,7 +14,7 @@ BEGIN {
 $OFFSET     = 0;
 $DEPTH      = 0;
 $ARGUMENTS  = 0;
-$VERSION    = '0.11';
+$VERSION    = '0.12';
 
 sub trace {
     my $level   = shift || $DEPTH       || 0;
@@ -25,48 +25,48 @@ sub trace {
     my $i = 1 + $OFFSET;
 
     while (1) {
-        last if $level && $level < $i; 
-    
+        last if $level && $level < $i;
+
         my  @caller = caller($i);
         last unless scalar @caller;
-        
-        my  ($package, $filename, $line, $subroutine, $hasargs, $wantarray, 
+
+        my  ($package, $filename, $line, $subroutine, $hasargs, $wantarray,
             $evaltext, $is_require, $hints, $bitmask) = @caller;
-        
-        my $string = $subroutine eq '(eval)' 
-                    ?   $package . '::' . $subroutine . qq| [$i]| 
-                        . (defined $evaltext ? qq[\n\t$evaltext] : '')       
+
+        my $string = $subroutine eq '(eval)'
+                    ?   $package . '::' . $subroutine . qq| [$i]|
+                        . (defined $evaltext ? qq[\n\t$evaltext] : '')
                     :   $subroutine . qq| [$i]|;
         $string =~ s/\n;$/;/gs;
-        
+
         $string .= qq[\n\t];
-        
+
         $string .= q[require|use - ] if $is_require;
-        $string .= defined $wantarray 
-                        ? $wantarray ? 'list - ' : 'scalar - ' 
+        $string .= defined $wantarray
+                        ? $wantarray ? 'list - ' : 'scalar - '
                         : 'void - ';
         $string .= $hasargs ? 'new stash' : 'no new stash';
         $string .=  qq[\n\t] . $filename . ' line ' . $line . qq[\n];
-    
-        if ($args) {   
+
+        if ($args) {
             local $Data::Dumper::Varname    = 'ARGS';
             local $Data::Dumper::Indent     = 1;
-            
+
             for my $line ( split $/, Dumper( called_args($i) ) ) {
                 $string .=  "\t$line\n";
             }
         }
-    
+
         $trace = $string . $trace;
-    
-        $i++;    
+
+        $i++;
     }
-    
+
     return $trace;
 }
-  
-__END__                   
-   
+
+__END__
+
 =head1 NAME
 
 Carp::Trace - simple traceback of call stacks
@@ -74,7 +74,7 @@ Carp::Trace - simple traceback of call stacks
 =head1 SYNOPSIS
 
     use Carp::Trace;
-    
+
     sub flubber {
         die "You took this route to get here:\n" .
             trace();
@@ -83,22 +83,22 @@ Carp::Trace - simple traceback of call stacks
 =head1 DESCRIPTION
 
 Carp::Trace provides an easy way to see the route your script took to
-get to a certain place. It uses simple C<caller> calls to determine 
+get to a certain place. It uses simple C<caller> calls to determine
 this.
 
 =head1 FUNCTIONS
 
 =head2 trace( [DEPTH, OFFSET, ARGS] )
 
-C<trace> is a function, exported by default, that gives a simple 
-traceback of how you got where you are. It returns a formatted string, 
+C<trace> is a function, exported by default, that gives a simple
+traceback of how you got where you are. It returns a formatted string,
 ready to be sent to C<STDOUT> or C<STDERR>.
 
-Optionally, you can provide a DEPTH argument, which tells C<trace> to 
-only go back so many levels. The OFFSET argument will tell C<trace> to 
+Optionally, you can provide a DEPTH argument, which tells C<trace> to
+only go back so many levels. The OFFSET argument will tell C<trace> to
 skip the first [OFFSET] layers up.
 
-If you provide a true value for the C<ARGS> parameter, the arguments 
+If you provide a true value for the C<ARGS> parameter, the arguments
 passed to each callstack will be dumped using C<Data::Dumper>.
 This might slow down your trace, but is very useful for debugging.
 
@@ -112,7 +112,7 @@ C<trace> is able to tell you the following things:
 
 The name of the function
 
-=item * 
+=item *
 
 The number of callstacks from your current location
 
@@ -120,7 +120,7 @@ The number of callstacks from your current location
 
 The context in which the function was called
 
-=item * 
+=item *
 
 Whether a new instance of C<@_> was created for this function
 
@@ -132,11 +132,11 @@ Whether the function was called in an C<eval>, C<require> or C<use>
 
 If called from a string C<eval>, what the eval-string is
 
-=item * 
+=item *
 
 The file the function is in
 
-=item * 
+=item *
 
 The line number the function is on
 
@@ -187,7 +187,7 @@ argument to C<trace> will override this setting.
 =head2 $Carp::Trace::ARGUMENTS
 
 Sets a flag to indicate that a C<trace> should dump all arguments for
-every call stack it's printing out. Any C<args> argument to C<trace> 
+every call stack it's printing out. Any C<args> argument to C<trace>
 will override this setting.
 
 =head1 AUTHOR

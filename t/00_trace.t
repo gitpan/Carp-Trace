@@ -17,9 +17,9 @@ sub zot { $z = trace() };
         'main::(eval) [5]',
         'foo(1)',
         "$0 line",
-        'main::foo [4]',        
+        'main::foo [4]',
         'void - new stash',
-        '(eval 2) line',
+        '(eval',
         'main::bar [3]',
         'void - new stash',
         "$0 line",
@@ -28,12 +28,12 @@ sub zot { $z = trace() };
         "$0 line",
         'main::zot [1]',
         'list - new stash',
-        "$0 line",    
+        "$0 line",
     );
- 
+
     for my $line (@expect) {
         my $token = quotemeta $line;
- 
+
         like( $z, qr/$token/,       "   Trace contains '$line'" );
     }
 
@@ -42,7 +42,7 @@ sub zot { $z = trace() };
 
 {   local $Carp::Trace::ARGUMENTS = 1;
     eval foo('bar',[1]);
-    
+
     ok( $z,                         "Trace with args" );
 
     my @expect = (
@@ -66,11 +66,11 @@ sub zot { $z = trace() };
         'main::zot [1]',
         'list - new stash',
         "$0 line",
-    );        
-    
+    );
+
     for my $line (@expect) {
         my $token = quotemeta $line;
- 
+
         like( $z, qr/$token/,       "   Trace contains '$line'" );
     }
 
